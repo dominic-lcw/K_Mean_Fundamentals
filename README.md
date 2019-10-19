@@ -10,7 +10,7 @@ Traditional value investment also puts great emphasis on firm characteristics (F
 For the second issue, within normal heuristic rules, when we are provided only a subset of firm characteristics (FCs), e.g. only data from income statement is provided, it is not easy to find clustering rules to have the most similarities within clusters.
 
 ## Our approach
-We will divide into stock analysis into different groups of FC (one FC can be placed in more than one group), group examples are as follows:
+We will seperate stock analysis into different groups of FC (one FC can be placed in more than one group), group examples are as follows:
 
 * Operating Profitability Ratios (Operating Margin, Earnings Margin, ROI, ROE, etc.)
 * Financial Risk (Debt Equity Ratio, Interest Coverage Ratio, etc.)
