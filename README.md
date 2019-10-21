@@ -1,11 +1,11 @@
 # K_Mean_Fundamentals
 
-## Problem of interest
+## Motivation
 Traditional stock clustering methods rely on a hollistic approach to evaluate stocks, e.g. GICS, BICS that groups stocks based on fundamentals and type of business.
 
-Traditional value investment also puts great emphasis on firm characteristics (FCs), and we would pose some issues regarding the traditional method:
+Traditional value investment also puts great emphasis on firm characteristics (FCs) to seperate good stocks and bad stocks, and we would pose some issues regarding the traditional method:
 * Traditional factors are too simple, e.g. HML (Book to market ratios), SMB (Market cap), MOM (Past return), etc., which only rank stocks using one FC. Can we increase the **dimension from one to more**?
-* Can we split the stock analysis process into different parts by looking into different subset of FCs, and for each subset, generate strategy **without prior knowledge on FCs outside this subset**?
+* Can we split the stock analysis process into different parts by looking into different subset of FCs, and for each subset, generate a strategy **without any prior knowledge on FCs outside this subset**?
 
 For the second issue, within normal heuristic rules, when we are provided only a subset of firm characteristics (FCs), e.g. only data from income statement is provided, it is not easy to find clustering rules to have the most similarities within clusters.
 
