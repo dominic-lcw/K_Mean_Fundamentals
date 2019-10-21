@@ -12,6 +12,8 @@ source = "/Users/dominicleung/OneDrive/Documents/FINA4390/industry/hk5mil.csv"
 target = "/Users/dominicleung/OneDrive/Documents/FINA4390/industry/4390_7th_cleaned.csv"
 
 def clean_data(source, target):
+	'''Clean data by removing NA
+	'''
 	df = pd.read_csv(source)
 
 	#Change Column names
