@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 ### 1. Price file
 ### 2. Prediction file
 ###---------------------------------------------------------
-f = h5.File("/Users/dominicleung/OneDrive/Documents/FINA4390/stockprice/HKSTOCK3.hdf5", 'r') #Set the pointer object
-label = pd.read_csv('/Users/dominicleung/OneDrive/Documents/FINA4390/industry/PE_NDE.csv')
+f = h5.File("/Users/dominicleung/Documents/4390Local/HKSTOCK4.hdf5", 'r') #Set the pointer object
+label = pd.read_csv("/Users/dominicleung/Documents/4390Local/Training/MR_3columns.csv")
 
 ###---------------------------------------------------------
 ### Predefined function
@@ -19,44 +19,45 @@ def resample(group):
 
 def bt_df(f, label):
     """ Return the dataframe that matches holding return with prediction """
-    item_list = list(f.keys())
-    #Input data from hdf5
-    new = True
-    count = 0
-    for item in item_list:
-        stock = np.array(f[item])
-        stock_df = pd.DataFrame(stock)
-        if new:
-            df = pd.DataFrame(columns = stock_df.columns)
-            new = False
-        df = df.append(stock_df.copy(deep = True), sort = False)
-        count +=1
-        if count % 100 ==0:
-            print(count)
-
-    #Resample data to monthly
-    df['Date'] = pd.to_datetime(df['Date'].str.decode("utf-8"))
-    df['Ticker'] = df['Ticker'].str.decode("utf-8")
-    df.set_index('Date', inplace = True)
-    result = df.groupby('Ticker').apply(resample)
-    result.drop(['Ticker'], axis = 1, inplace = True) #Duplicate columns that should be removed
-    bt = pd.DataFrame(result.groupby('Ticker')['Nominal Price'].pct_change().shift(-1)) #Make as the return if we long at that time
-    bt.rename(columns = {"Nominal Price": "Monthly Return"},  inplace = True)
-    bt.reset_index(inplace = True)
-    bt.set_index(['Ticker','Date'], inplace = True)
-
-    #Modify prediction file
-    label['Date'] = pd.to_datetime(label['Date'], format = "%Y%m%d")
+    label['Date'] = pd.to_datetime(label['Date'], format = "%Y-%m-%d")
     for i in range(len(label)): #Change label to match with naming convention of QUANDL
-        ticker = label.iloc[i,1][:-10]
+        ticker = label.iloc[i,0][:-10]
         if len(ticker)<5:
-            for j in range(len(ticker),5):
+            for j in range(len(ticker),4):
                 ticker = '0'+ticker
-        ticker = 'HKEX/'+ticker
-        label.iloc[i,1] = ticker
+        ticker += " HK Equity"
+        label.iloc[i,0] = ticker
+    item_list = list(set(list(label['Ticker'])))
     label = label.set_index(['Date']).groupby('Ticker').resample('M').ffill()
     label.drop('Ticker', axis = 1, inplace = True)
+
+    #Input data from hdf5
+    new = True
+    for item in item_list:
+        try:
+            stock = np.array(f[item])
+            stock_df = pd.DataFrame(stock)
+            stock_df['Ticker'] = item
+            stock_df.dropna(inplace = True)
+            if new:
+                df = pd.DataFrame(columns = stock_df.columns)
+                new = False
+            df = df.append(stock_df.copy(deep = True), sort = False)
+        except:
+            print(item)
+    #Resample data to monthly
+    df['Date'] = pd.to_datetime(df['Date'].str.decode("utf-8"))
+    df.set_index('Date', inplace = True)
+    
+    result = df.groupby('Ticker').apply(resample)
+    result.drop(['Ticker'], axis = 1, inplace = True) #Duplicate columns that should be removed
+    bt = pd.DataFrame(result.groupby('Ticker')['Adj Close'].pct_change().shift(-1)) #Make as the return if we long at that time
+    bt.rename(columns = {"Adj Close": "Monthly Return"},  inplace = True)
+    bt.reset_index(inplace = True)
+    bt.set_index(['Ticker','Date'], inplace = True)
+    #Resample data to monthly
     backtest = label.merge(bt, left_on = ['Ticker', 'Date'], right_on = ['Ticker', 'Date']).reset_index()
+
 
     return backtest
 
