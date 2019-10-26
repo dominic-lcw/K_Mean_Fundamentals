@@ -18,8 +18,9 @@ for (i in 3:col_len){
 ###----------------------------------------
 ### Input Cleaned Data
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Training/TBusiness_Financial_Risk.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Training/TMarket_Related.csv"
 d <- read.csv(source)
+head(d)
 ###----------------------------------------
 ### Box plot for all columns
 ###----------------------------------------
@@ -51,18 +52,20 @@ d1 = d[3:col_len]
 km.r <- bestk(d1,200)
 plot(d1, col = km.r$cluster)
 table(km.r$cluster) #Evaluate Distribution
-legend(x = 1.5,y = 2, legend = c('1','2','3','4','5','6','7','8'),lwd = 1, col = c(1:8), cex = 0.4)
 
 ###----------------------------------------
 ### Decide multiple columns that are representable
 ###----------------------------------------
-x1 <- data.frame(d1[c(2,4)])
+sel = c(1,2,5,6)
+selected = d1[sel]
+x1 <- data.frame(selected)
 par(mfrow = c(1,1))
 plot(x1, col = km.r$cluster, main = "before")
+legend(x = 1.5,y = 2, legend = c('1','2','3','4','5','6','7','8','9'),lwd = 1, col = c(1:9), cex = 0.4)
 
 
 library("nnet")
-p0 <- data.frame(d1[c(2,4)], km.r$cluster) 
+p0 <- data.frame(selected, km.r$cluster) 
 mn1 = multinom(km.r.cluster ~ ., data = p0)
 
 pred <- predict(mn1)
@@ -73,17 +76,17 @@ table(pred) #Evaluate transformed result
 ###----------------------------------------
 ### Output the result
 ###----------------------------------------
-output <- data.frame(d[1], d[2], d1[c(2,4)], pred)
+output <- data.frame(d[1], d[2], selected, pred)
 head(output)
-write.csv(output, file = "BFR_2columns.csv", row.names = FALSE)
+write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Training/MR_4columns_v2.csv", row.names = FALSE)
 
 ###----------------------------------------
 ### Validation Dataset Result
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Validation/VBusiness_Financial_Risk.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Validation/VMarket_Related.csv"
 val <- read.csv(source)
 len <-dim(val)[2]
-v1 <- val[c(3:len)][c(2,4)]
+v1 <- val[c(3:len)][sel]
 v_pred <-predict(mn1, v1)
 table(v_pred)
-write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Validation/BFR_val_2columns.csv")
+write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Validation/MR_val_4columns_v2.csv")
