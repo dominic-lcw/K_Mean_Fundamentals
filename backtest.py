@@ -9,13 +9,24 @@ import matplotlib.pyplot as plt
 ### 2. Prediction file
 ###---------------------------------------------------------
 f = h5.File("/Users/dominicleung/Documents/4390Local/HKSTOCK4.hdf5", 'r') #Set the pointer object
-label = pd.read_csv("/Users/dominicleung/Documents/4390Local/Training/MR_3columns.csv")
+label = pd.read_csv("/Users/dominicleung/Documents/4390Local/Market_Related/mr6_pred.csv")
 
 ###---------------------------------------------------------
 ### Predefined function
 ###---------------------------------------------------------
 def resample(group):
     return group.resample('M').last()
+
+def max_drawdown(X):
+    mdd = 0
+    peak = X[0]
+    for x in X:
+        if x > peak: 
+            peak = x
+        dd = (peak - x)
+        if dd > mdd:
+            mdd = dd
+    return mdd    
 
 def bt_df(f, label):
     """ Return the dataframe that matches holding return with prediction """
@@ -58,7 +69,6 @@ def bt_df(f, label):
     #Resample data to monthly
     backtest = label.merge(bt, left_on = ['Ticker', 'Date'], right_on = ['Ticker', 'Date']).reset_index()
 
-
     return backtest
 
 ###---------------------------------------------------------
@@ -67,23 +77,32 @@ def bt_df(f, label):
 ###---------------------------------------------------------
 if __name__ == "__main__":
     backtest = bt_df(f, label)
-    grp = pd.DataFrame()
+    grp = {}
     for i in set(list(label.pred)):
         grp[i] = backtest.loc[backtest['pred']==i].groupby('Date')['Monthly Return'].mean()
+    grp = pd.DataFrame(grp)
 
     #Plot the performance for each group
     plt.rcParams["figure.figsize"] = [10,5]
     grp.plot()
-    plt.show()
 
     # #Count number of stocks for each data
     grpcount = pd.DataFrame(backtest.groupby(['Date','pred'])['Ticker'].count())
     grpcount.groupby('pred')['Ticker'].plot()
-    plt.show()
+
+    LS = (grp[7]- grp[1])
+    LS.cumsum().plot(grid = True)
+    total_ret = (LS.cumsum()[-1]/4)
+    sharpe = (LS.cumsum()[-1]/4) / (LS.std()*np.sqrt(12))
+    mdd = max_drawdown(LS.cumsum())
+    print(f'Total Return: {total_ret}')
+    print(f'Sharpe: {sharpe}')
+    print(f'Maximum Drawdown: {mdd}')
 
 
-
-
+###----------------------------------------
+### Validation Set
+###----------------------------------------
 
 
 

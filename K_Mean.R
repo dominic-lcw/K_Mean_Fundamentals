@@ -18,7 +18,7 @@ for (i in 3:col_len){
 ###----------------------------------------
 ### Input Cleaned Data
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Training/TMarket_Related.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Train/mr6.csv"
 d <- read.csv(source)
 head(d)
 ###----------------------------------------
@@ -27,8 +27,8 @@ head(d)
 name = colnames(d)
 col_len = dim(d)[2]
 row_len = dim(d)[1]
-par(mfrow = c(1,4))
 
+par(mfrow = c(1,4))
 for (i in 3:col_len){
   boxplot(d[i], main =name[i])
 }
@@ -47,8 +47,9 @@ bestk <- function(d1, min){
   }
   km.out
 }
-
+head(d1)
 d1 = d[3:col_len]
+
 km.r <- bestk(d1,200)
 plot(d1, col = km.r$cluster)
 table(km.r$cluster) #Evaluate Distribution
@@ -56,7 +57,7 @@ table(km.r$cluster) #Evaluate Distribution
 ###----------------------------------------
 ### Decide multiple columns that are representable
 ###----------------------------------------
-sel = c(1,2,5,6)
+sel = c(1,3,4,6)
 selected = d1[sel]
 x1 <- data.frame(selected)
 par(mfrow = c(1,1))
@@ -77,16 +78,18 @@ table(pred) #Evaluate transformed result
 ### Output the result
 ###----------------------------------------
 output <- data.frame(d[1], d[2], selected, pred)
+#output <- data.frame(d[1], d[2], selected, km.r$cluster)
 head(output)
-write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Training/MR_4columns_v2.csv", row.names = FALSE)
+write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr6_pred.csv", row.names = FALSE)
 
 ###----------------------------------------
 ### Validation Dataset Result
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Validation/VMarket_Related.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Validation/mr6.csv"
 val <- read.csv(source)
 len <-dim(val)[2]
 v1 <- val[c(3:len)][sel]
 v_pred <-predict(mn1, v1)
 table(v_pred)
-write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Validation/MR_val_4columns_v2.csv")
+output2 <- data.frame(val[1], val[2], v1, v_pred)
+write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr6_val.csv", row.names = FALSE)
