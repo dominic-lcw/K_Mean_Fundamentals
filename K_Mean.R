@@ -64,52 +64,77 @@ scattermatrix <- function(km.r, df){
   out_set = subset(largest, !(km.r$cluster %in% max_index))
   out_set['km.r$cluster'] = 'black'
 
-  colour = c('red', 'blue','green','lightblue','purple', 'orange')  
+  colour = c('red', 'blue','green','lightblue')  
   for (i in 1:length(max_index)){
     in_set[in_set['km.r$cluster']== max_index[i],]['km.r$cluster'] = colour[i]
   }
   total_set = rbind(out_set, in_set)
   n = as.numeric(dim(total_set)[2])
-  plot(total_set[1:(n-1)], col = total_set[,n])
+  plot(total_set[3:(n-1)], col = total_set[,n])
+  return(total_set)
 }
 
-scattermatrix(km.r, d1)
+transform <- function(td){
+  td[td['km.r$cluster']=='red',]['km.r$cluster'] = 1
+  td[td['km.r$cluster']=='blue',]['km.r$cluster'] = 2
+  td[td['km.r$cluster']=='green',]['km.r$cluster'] = 3
+  td[td['km.r$cluster']=='lightblue',]['km.r$cluster'] = 4
+  td[td['km.r$cluster']=='black',]['km.r$cluster'] = 5
+  return(td[,as.numeric(dim(td)[2])])
+}
+
+d1 = d[3:col_len]
+table(km.r$cluster)
+km.r = bestk(d1)
+d2 = scattermatrix(km.r, d)
+
+head(d2)
+cluster = transform(d2)
+table(cluster)
+d2['km.r$cluster']<- NULL
 
 ###----------------------------------------
 ### Decide multiple columns that are representable
 ###----------------------------------------
-sel = c(1,2,4)
-selected = d1[sel]
-x1 <- data.frame(selected)
+sel = c(6,7,8,10)+2
+
+head(selected)
+head(d2[sel])
+
+
+
+
+selected <- d2[sel]
+selected <- data.frame(selected)
 par(mfrow = c(1,1))
-plot(x1, col = km.r$cluster, main = "before")
-legend(x = 1.5,y = 2, legend = c('1','2','3','4','5','6','7','8','9'),lwd = 1, col = c(1:9), cex = 0.4)
+plot(selected, col = cluster, main = "before")
 
 library("nnet")
-p0 <- data.frame(selected, km.r$cluster) 
-mn1 = multinom(km.r.cluster ~ ., data = p0)
+p0 <- data.frame(selected, cluster);head(p0)
+mn1 = multinom(cluster ~ ., data = p0)
 
 pred <- predict(mn1)
-plot(x1, col = pred, main = "after")
-
+plot(selected, col = pred, main = "after")
 table(pred) #Evaluate transformed result
 
 ###----------------------------------------
 ### Output the result
 ###----------------------------------------
-output <- data.frame(d[1], d[2], selected, pred)
+output <- data.frame(d2[1], d2[2], selected, pred)
 #output <- data.frame(d[1], d[2], selected, km.r$cluster)
 head(output)
-write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Operating_Profitability/op2_pred.csv", row.names = FALSE)
+write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr1_pred.csv", row.names = FALSE)
 
 ###----------------------------------------
 ### Validation Dataset Result
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Operating_Profitability/Validation/op2.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Validation/mr1.csv"
 val <- read.csv(source)
 len <-dim(val)[2]
-v1 <- val[c(3:len)][sel]
+v1 <- val[sel]
 v_pred <-predict(mn1, v1)
 table(v_pred)
 output2 <- data.frame(val[1], val[2], v1, v_pred)
-write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Operating_Profitability/op2_val.csv", row.names = FALSE)
+write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr1_val.csv", row.names = FALSE)
+
+
