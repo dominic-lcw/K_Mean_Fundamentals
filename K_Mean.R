@@ -18,14 +18,14 @@ for (i in 3:col_len){
 ###----------------------------------------
 ### Input Cleaned Data
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Training/mr1.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Training/mr6.csv"
 d <- read.csv(source)
 head(d)
 ###----------------------------------------
 ### Box plot for all columns
 ###----------------------------------------
 name = colnames(d);name
-col_len = dim(d)[2]
+col_len = dim(d)[2];col_len
 row_len = dim(d)[1];row_len
 
 par(mfrow = c(1,4))
@@ -38,7 +38,7 @@ for (i in 3:col_len){
 ###----------------------------------------
 bestk <- function(d1){
   n = dim(d1)[1]
-  min = floor(n/3)
+  min = floor(n/2)
   while(min > 200){
     for (i in 3:20){
       set.seed(8)
@@ -54,7 +54,6 @@ bestk <- function(d1){
   cat("FAILED")
   return(NULL)
 }
-
 scattermatrix <- function(km.r, df){
   group = as.numeric(names(sort(table(km.r$cluster), decreasing = TRUE)))
   max_index = group[1:4]
@@ -73,7 +72,6 @@ scattermatrix <- function(km.r, df){
   plot(total_set[3:(n-1)], col = total_set[,n])
   return(total_set)
 }
-
 transform <- function(td){
   td[td['km.r$cluster']=='red',]['km.r$cluster'] = 1
   td[td['km.r$cluster']=='blue',]['km.r$cluster'] = 2
@@ -84,8 +82,8 @@ transform <- function(td){
 }
 
 d1 = d[3:col_len]
-table(km.r$cluster)
 km.r = bestk(d1)
+table(km.r$cluster)
 d2 = scattermatrix(km.r, d)
 
 head(d2)
@@ -96,13 +94,9 @@ d2['km.r$cluster']<- NULL
 ###----------------------------------------
 ### Decide multiple columns that are representable
 ###----------------------------------------
-sel = c(6,7,8,10)+2
+sel = c(1,2,4,6,7)+2
 
-head(selected)
 head(d2[sel])
-
-
-
 
 selected <- d2[sel]
 selected <- data.frame(selected)
@@ -123,18 +117,18 @@ table(pred) #Evaluate transformed result
 output <- data.frame(d2[1], d2[2], selected, pred)
 #output <- data.frame(d[1], d[2], selected, km.r$cluster)
 head(output)
-write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr1_pred.csv", row.names = FALSE)
-
+write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr6_pred.csv", row.names = FALSE)
 ###----------------------------------------
 ### Validation Dataset Result
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Validation/mr1.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Validation/mr6.csv"
 val <- read.csv(source)
 len <-dim(val)[2]
 v1 <- val[sel]
+head(v1)
 v_pred <-predict(mn1, v1)
 table(v_pred)
 output2 <- data.frame(val[1], val[2], v1, v_pred)
-write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr1_val.csv", row.names = FALSE)
+write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr6_val.csv", row.names = FALSE)
 
 
