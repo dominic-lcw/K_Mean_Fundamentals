@@ -18,7 +18,7 @@ for (i in 3:col_len){
 ###----------------------------------------
 ### Input Cleaned Data
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Training/mr6.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Training/mr2.csv"
 d <- read.csv(source)
 head(d)
 ###----------------------------------------
@@ -94,7 +94,7 @@ d2['km.r$cluster']<- NULL
 ###----------------------------------------
 ### Decide multiple columns that are representable
 ###----------------------------------------
-sel = c(1,2,4,6,7)+2
+sel = c(1,2,5,7,8)+2
 
 head(d2[sel])
 
@@ -117,11 +117,11 @@ table(pred) #Evaluate transformed result
 output <- data.frame(d2[1], d2[2], selected, pred)
 #output <- data.frame(d[1], d[2], selected, km.r$cluster)
 head(output)
-write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr6_pred.csv", row.names = FALSE)
+write.csv(output, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr7_pred.csv", row.names = FALSE)
 ###----------------------------------------
 ### Validation Dataset Result
 ###----------------------------------------
-source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Validation/mr6.csv"
+source <- "/Users/dominicleung/Documents/4390Local/Market_Related/Validation/mr7.csv"
 val <- read.csv(source)
 len <-dim(val)[2]
 v1 <- val[sel]
@@ -129,6 +129,6 @@ head(v1)
 v_pred <-predict(mn1, v1)
 table(v_pred)
 output2 <- data.frame(val[1], val[2], v1, v_pred)
-write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr6_val.csv", row.names = FALSE)
+write.csv(output2, file = "/Users/dominicleung/Documents/4390Local/Market_Related/mr7_val.csv", row.names = FALSE)
 
 
