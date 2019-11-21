@@ -13,7 +13,6 @@ import backtest as bt
 def resample(group):
     return group.resample('M').last()
 
-
 def max_drawdown(X):
     mdd = 0
     peak = X[0]
@@ -26,6 +25,11 @@ def max_drawdown(X):
     return mdd
 
 def label_csv(source):
+    '''Additional process to read a csv
+
+    :param source: path of the csv file
+    :returns: dataframe with ticker name adjusted
+    '''
     label = pd.read_csv(source)
     label['Date'] = pd.to_datetime(label['Date'], format = "%Y-%m-%d")
     for i in range(len(label)): 
@@ -38,13 +42,15 @@ def label_csv(source):
     return label
 
 
-def return_df(f, label):
-    #Get the ticker list
-    ticker_list = list(set(list(label['Ticker'])))
-
+def return_df(f):
+    '''Aggregate the price data to one big dataframe and compute monthy return
+    
+    :param f: object for price hdf5 file
+    :returns: dataframe with the needed ticker and monthly return column
+    '''
     #Convert the price hdf5 to a large dataframe
     new = True
-    for item in ticker_list:
+    for item in list(f.keys()):
         try:
             stock = np.array(f[item])
             stock_df = pd.DataFrame(stock)
@@ -72,12 +78,11 @@ def return_df(f, label):
 
 def bt_df(ret, label):
     ''' Merge the return for the each stocks in the dataframe
+
     :param f: object for hdf5 file
-    :param label: dataframe for the label file
-    
+    :param label: dataframe for the label file 
     :returns: dataframe with monthly return for each stocks
     '''
-
     #Get the date and ticker
     d = list(set(list(label['Date'])));d.sort();d.append(d[-1]+ timedelta(181))
     t = list(set(list(label['Ticker'])))
@@ -128,22 +133,22 @@ if __name__ == "__main__":
     #Backtesting object
     label = bt.label_csv("/Users/dominicleung/Documents/4390Local/Market_Related/mr7_pred.csv")
     r = bt.return_df(f, label)
-    train = bt.bt_df(r, label)
-    t_grp = bt.grp_return(train, label)
+    backtest = bt.bt_df(r, label)
+    grp = bt.grp_return(backtest, label)
 
     #Plot the performance for each group
-    plt.rcParams["figure.figsize"] = [10,5]
-    t_grp.plot(grid = True);
+    plt.rcParams["figure.figsize"] = [12,7]
+    grp.plot(grid = True);
 
     # #Count number of stocks for each data
-    grpcount = pd.DataFrame(train.reset_index().groupby(['Date','pred'])['Ticker'].count())
+    grpcount = pd.DataFrame(backtest.reset_index().groupby(['Date','pred'])['Ticker'].count())
     grpcount.reset_index().set_index('Date').groupby('pred')['Ticker'].plot(legend = True);
 
-    LS = (t_grp[1]- t_grp[2])
+    LS = (grp[1]- grp[2])
     LS.cumsum().plot(grid = True);
 
     #General backtesting stat
-    nyears = relativedelta(t_grp.index[-1], t_grp.index[1])
+    nyears = relativedelta(grp.index[-1], grp.index[0])
     years =nyears.years + nyears.months/12
     total_ret = (LS.cumsum()[-1]/years)
     sharpe = (LS.cumsum()[-1]/years) / (LS.std()*np.sqrt(12))
