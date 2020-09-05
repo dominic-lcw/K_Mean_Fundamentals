@@ -1,4 +1,4 @@
-# K_Mean_Fundamentals (QFRM!!!)
+# K_Mean_Fundamentals
 
 ## Motivation
 Traditional stock clustering methods rely on a hollistic approach to evaluate stocks, e.g. GICS, BICS that groups stocks based on fundamentals and type of business.
